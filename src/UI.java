@@ -74,10 +74,17 @@ public class UI {
         System.out.println("Enter the number:");
         String phone = scan.nextLine();
         if (numberValidation(phone)) {
-            lista.add(new Contact(name, surname, phone));
+            lista.add(new ContactBuilder()
+                    .setName(name)
+                    .setSurname(surname)
+                    .setNumber(phone)
+                    .build());
         } else {
             System.out.println("Wrong number format!");
-            lista.add(new Contact(name, surname, "[no number]"));
+            lista.add(new ContactBuilder()
+                    .setName(name)
+                    .setSurname(surname)
+                    .build());
         }
         System.out.println("The record added.");
 

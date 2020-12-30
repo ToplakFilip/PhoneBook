@@ -3,10 +3,11 @@ public class Contact {
     private String surname;
     private String number;
 
-    Contact(String name, String surname, String number) {
-        this.name = name;
-        this.surname = surname;
-        this.number = number;
+    Contact(ContactBuilder builder) {
+        this.name = builder.name;
+        this.surname = builder.surname;
+        this.number = builder.number;
+
     }
 
     public void setName(String name) {
