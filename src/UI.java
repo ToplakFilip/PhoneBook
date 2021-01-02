@@ -6,8 +6,9 @@ import java.util.regex.Pattern;
 
 public class UI {
 
-    List<Contact> lista = new ArrayList<>();
+    List<Contact> contactList = new ArrayList<>();
     Scanner scan = new Scanner(System.in);
+    String input;
     Pattern pattern = Pattern.compile("[+]?(\\w+)?(\\s|[-])?([(]\\w{2,}[)])?((\\s|[-])\\w{2,})*");
     Matcher matcher;
 
@@ -16,28 +17,28 @@ public class UI {
         label:
         while (true) {
             System.out.println("Enter action (add, remove, edit, count, list, exit):");
-            String input = scan.nextLine();
+            input = scan.nextLine();
 
             switch (input) {
                 case "add":
-                    add();
+                    factory();
                     break;
                 case "remove":
-                    if (!lista.isEmpty()) {
+                    if (!contactList.isEmpty()) {
                         remove();
                     } else {
                         System.out.println("No records to remove");
                     }
                     break;
                 case "edit":
-                    if (!lista.isEmpty()) {
+                    if (!contactList.isEmpty()) {
                         edit();
                     } else {
                         System.out.println("No records to edit");
                     }
                     break;
                 case "count":
-                    System.out.printf("the Phone book has %s records.\n", lista.size());
+                    System.out.printf("the Phone book has %s records.\n", contactList.size());
                     break;
                 case "list":
                     printList();
@@ -53,7 +54,7 @@ public class UI {
 
     private void printList() {
         int counter = 1;
-        for (Contact contact : lista) {
+        for (Contact contact : contactList) {
             System.out.println(counter + ". " + contact);
             counter++;
         }
@@ -62,62 +63,131 @@ public class UI {
     private void remove() {
         System.out.println("Select a record: ");
         int number = selectNumber();
-        lista.remove(number);
+        contactList.remove(number);
         System.out.println("The record removed");
     }
 
-    private void add() {
+    private void factory() {
+        System.out.println("Enter the type (person, organization):");
+        input = scan.nextLine();
+        switch (input) {
+            case "person":
+                addPerson();
+                break;
+            case "organization":
+                addOrganization();
+                break;
+            default:
+                System.out.println("Wrong input");
+                break;
+        }
+    }
+
+    private void addPerson() {
         System.out.println("Enter the name of the person:");
         String name = scan.nextLine();
         System.out.println("Enter the surname of the person:");
         String surname = scan.nextLine();
+        System.out.println("Enter the birth date:");
+        String birthDate = scan.nextLine();
+        if (birthDate.equals("")) {
+            System.out.println("invalid birth date!");
+        }
+        System.out.println("Enter the gender (M, F):");
+        String gender = scan.nextLine();
+        if (!gender.equals("M") && !gender.equals("F")) {
+            gender = "";
+            System.out.println("invalid gender!");
+        }
         System.out.println("Enter the number:");
         String phone = scan.nextLine();
-        if (numberValidation(phone)) {
-            lista.add(new ContactBuilder()
-                    .setName(name)
-                    .setSurname(surname)
-                    .setNumber(phone)
-                    .build());
-        } else {
-            System.out.println("Wrong number format!");
-            lista.add(new ContactBuilder()
-                    .setName(name)
-                    .setSurname(surname)
-                    .build());
+        if (!numberValidation(phone)) {
+            phone = "";
+            System.out.println("invalid number!");
         }
+        contactList.add(new ContactBuilder()
+                .setName(name)
+                .setSurname(surname)
+                .setBirthDate(birthDate)
+                .setGender(gender)
+                .setNumber(phone)
+                .setCreationDate()
+                .setEditDate()
+                .peopleBuild());
         System.out.println("The record added.");
 
+    }
+
+    private void addOrganization() {
+        System.out.println("Enter organization name:");
+        String name = scan.nextLine();
+        System.out.println("Enter the address:");
+        String address = scan.nextLine();
+        System.out.println("Enter the number:");
+        String phone = scan.nextLine();
+        if (!numberValidation(phone)) {
+            phone = "";
+            System.out.println("invalid number!");
+        }
+        contactList.add(new ContactBuilder()
+                .setName(name)
+                .setAddress(address)
+                .setNumber(phone)
+                .organizationBuild());
     }
 
     private void edit() {
         printList();
         System.out.println("Select a record:");
         int number = selectNumber();
-
-        System.out.println("Select a field (name, surname, number): ");
-        String input = scan.nextLine();
+        System.out.println("Select a field (name, surname, birth, gender, number):");
+        input = scan.nextLine();
         switch (input) {
             case "name":
                 System.out.println("Enter the name: ");
                 input = scan.nextLine();
-                lista.get(number).setName(input);
+                contactList.get(number).setName(input);
                 System.out.println("The record updated!");
+                contactList.get(number).updateLastEdited();
                 break;
             case "surname":
                 System.out.println("Enter the surname: ");
                 input = scan.nextLine();
-                lista.get(number).setSurname(input);
+                ((People) contactList.get(number)).setSurname(input);
                 System.out.println("The record updated!");
+                contactList.get(number).updateLastEdited();
+                break;
+            case "gender":
+                System.out.println("Enter gender (M, F): ");
+                input = scan.nextLine();
+                if (!input.equals("M") && !input.equals("F")) {
+                    System.out.println("invalid gender!");
+                } else {
+                    ((People) contactList.get(number)).setGender(input);
+                    System.out.println("The record updated!");
+                    contactList.get(number).updateLastEdited();
+                }
+                break;
+            case "birth":
+                System.out.println("Enter birth date: ");
+                input = scan.nextLine();
+                if (!input.equals("")) {
+                    System.out.println("invalid birth date!");
+                } else {
+                    ((People) contactList.get(number)).setBirthDate(input);
+                    System.out.println("The record updated!");
+                    contactList.get(number).updateLastEdited();
+                }
                 break;
             case "number":
                 System.out.println("Enter the number: ");
                 input = scan.nextLine();
                 if (numberValidation(input)) {
-                    lista.get(number).setNumber(input);
+                    contactList.get(number).setNumber(input);
                     System.out.println("The record updated!");
+                    contactList.get(number).updateLastEdited();
                 } else {
-                    lista.get(number).setNumber("[no number]");
+                    contactList.get(number).setNumber("[no number]");
                     System.out.println("Wrong number format!");
                 }
                 break;
@@ -125,7 +195,6 @@ public class UI {
                 System.out.println("invalid input");
                 break;
         }
-
     }
 
     private boolean numberValidation(String phone) {
@@ -137,7 +206,7 @@ public class UI {
         while (true) {
             int number = Integer.parseInt(scan.nextLine());
             number--;
-            if (number < lista.size() && number >= 0) {
+            if (number < contactList.size() && number >= 0) {
                 return number;
             } else {
                 System.out.println("Invalid number");
