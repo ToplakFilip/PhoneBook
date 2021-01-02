@@ -29,18 +29,24 @@ public class People extends Contact {
         this.number = number;
     }
 
+    @Override
     public String detailedPrint() {
-        return super.name + "\n"
-                + this.surname + "\n"
-                + this.birthDate + "\n"
-                + this.gender + "\n"
-                + super.number + "\n"
+        return "Name: " + super.name + "\n"
+                + "Surname: " + this.surname + "\n"
+                + "Birth date: " + this.birthDate + "\n"
+                + "Gender: " + this.gender + "\n"
+                + "Number: " + super.number + "\n"
                 + "Time created: " + super.formattedDateTimeCreation + "\n"
-                + "Time last edited: " + super.formattedDateTime;
+                + "Time last edit: " + super.formattedDateTime;
     }
 
     @Override
     public String toString() {
         return super.name + " " + this.surname;
+    }
+
+    @Override
+    public boolean isPerson(){
+        return true;
     }
 }

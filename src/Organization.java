@@ -18,15 +18,23 @@ public class Organization extends Contact {
     }
 
 
+    @Override
     public String detailedPrint() {
-        return super.name + "\n"
-                + this.address + "\n"
-                + this.number + "\n"
+        return "Organization name: " + super.name + "\n"
+                + "Address: " + this.address + "\n"
+                + "Number: " + this.number + "\n"
                 + "Time created: " + super.formattedDateTimeCreation + "\n"
-                + "Time last edited: " + super.formattedDateTime;
+                + "Time last edit: " + super.formattedDateTime;
     }
 
+    @Override
     public String toString() {
         return super.name + " " + this.address;
+    }
+
+    //bad implementation, temporary
+    @Override
+    public boolean isPerson(){
+        return false;
     }
 }

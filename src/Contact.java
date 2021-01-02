@@ -1,5 +1,3 @@
-import java.time.LocalDateTime;
-
 public class Contact {
 
     String number;
@@ -18,6 +16,14 @@ public class Contact {
 
     public void updateLastEdited() {
         this.formattedDateTime = time.getTime();
+    }
+
+    protected String detailedPrint(){
+        return "undefined";
+    }
+
+    protected boolean isPerson(){
+        return false;
     }
 }
 

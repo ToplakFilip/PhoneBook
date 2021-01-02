@@ -14,11 +14,10 @@ public class UI {
 
 
     void start() {
+        System.out.println("Enter action (add, remove, edit, count, list, exit, info):");
+        input = scan.nextLine();
         label:
         while (true) {
-            System.out.println("Enter action (add, remove, edit, count, list, exit):");
-            input = scan.nextLine();
-
             switch (input) {
                 case "add":
                     factory();
@@ -43,12 +42,17 @@ public class UI {
                 case "list":
                     printList();
                     break;
+                case "info":
+                    detailedPrint();
+                    break;
                 case "exit":
                     break label;
                 default:
                     System.out.println("Wrong input");
                     break;
             }
+            System.out.println("\nEnter action (add, remove, edit, count, list, exit, info):");
+            input = scan.nextLine();
         }
     }
 
@@ -133,13 +137,25 @@ public class UI {
                 .setName(name)
                 .setAddress(address)
                 .setNumber(phone)
+                .setCreationDate()
+                .setEditDate()
                 .organizationBuild());
+        System.out.println("The record added.");
     }
 
     private void edit() {
         printList();
         System.out.println("Select a record:");
         int number = selectNumber();
+
+        if (contactList.get(number).isPerson()) {
+            editPerson(number);
+        } else {
+            editOrganization(number);
+        }
+    }
+
+    private void editPerson(int number) {
         System.out.println("Select a field (name, surname, birth, gender, number):");
         input = scan.nextLine();
         switch (input) {
@@ -180,21 +196,54 @@ public class UI {
                 }
                 break;
             case "number":
-                System.out.println("Enter the number: ");
-                input = scan.nextLine();
-                if (numberValidation(input)) {
-                    contactList.get(number).setNumber(input);
-                    System.out.println("The record updated!");
-                    contactList.get(number).updateLastEdited();
-                } else {
-                    contactList.get(number).setNumber("[no number]");
-                    System.out.println("Wrong number format!");
-                }
+                setContactNumber(number);
                 break;
             default:
                 System.out.println("invalid input");
                 break;
         }
+    }
+
+    private void editOrganization(int number) {
+        System.out.println("Select a field (name, address, number):");
+        input = scan.nextLine();
+        switch (input) {
+            case "name":
+                System.out.println("Enter organization name: ");
+                input = scan.nextLine();
+                contactList.get(number).setName(input);
+                contactList.get(number).updateLastEdited();
+                break;
+            case "address":
+                System.out.println("Enter organization address: ");
+                input = scan.nextLine();
+                ((Organization) contactList.get(number)).setAddress(input);
+                contactList.get(number).updateLastEdited();
+                break;
+            case "number":
+                setContactNumber(number);
+                break;
+        }
+    }
+
+    private void setContactNumber(int number) {
+        System.out.println("Enter the number: ");
+        input = scan.nextLine();
+        if (numberValidation(input)) {
+            contactList.get(number).setNumber(input);
+            System.out.println("The record updated!");
+            contactList.get(number).updateLastEdited();
+        } else {
+            System.out.println("Wrong number format!");
+        }
+    }
+
+    private void detailedPrint() {
+        printList();
+        System.out.println("Select a record:");
+        int number = selectNumber();
+        System.out.println(contactList.get(number).detailedPrint());
+
     }
 
     private boolean numberValidation(String phone) {
