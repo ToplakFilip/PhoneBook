@@ -1,4 +1,7 @@
-public class ContactBuilder {
+import java.io.Serializable;
+
+public class ContactBuilder implements Serializable {
+    private static final long serialVersionUID = 3976583715976144232L;
     String name;
     String surname;
     String number;

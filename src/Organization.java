@@ -1,4 +1,7 @@
-public class Organization extends Contact {
+import java.io.Serializable;
+
+public class Organization extends Contact implements Serializable {
+    private static final long serialVersionUID = 3976583715976144232L;
     private String address;
 
     Organization(ContactBuilder builder) {

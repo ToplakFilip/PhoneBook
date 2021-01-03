@@ -1,5 +1,8 @@
-public class Contact {
+import java.io.Serializable;
 
+public class Contact implements Serializable {
+
+    private static final long serialVersionUID = 3976583715976144232L;
     String number;
     String name;
     String formattedDateTime;

@@ -1,4 +1,7 @@
-public class People extends Contact {
+import java.io.Serializable;
+
+public class People extends Contact implements Serializable {
+    private static final long serialVersionUID = 3976583715976144232L;
     private String surname;
     private String birthDate;
     private String gender;

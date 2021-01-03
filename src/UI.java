@@ -1,16 +1,22 @@
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class UI {
 
-    List<Contact> contactList = new ArrayList<>();
+    ArrayList<Contact> contactList = new ArrayList<>();
     Scanner scan = new Scanner(System.in);
     String input;
     Pattern pattern = Pattern.compile("[+]?(\\w+)?(\\s|[-])?([(]\\w{2,}[)])?((\\s|[-])\\w{2,})*");
     Matcher matcher;
+    WriteReadFile wrFile;
+
+    UI(String filename) throws IOException, ClassNotFoundException {
+        wrFile = new WriteReadFile(filename);
+        contactList = wrFile.readFile();
+    }
 
 
     void start() {
@@ -46,6 +52,7 @@ public class UI {
                     detailedPrint();
                     break;
                 case "exit":
+                    wrFile.writeFile(contactList);
                     break label;
                 default:
                     System.out.println("Wrong input");
