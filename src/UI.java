@@ -9,8 +9,8 @@ public class UI {
     ArrayList<Contact> contactList;
     Scanner scan = new Scanner(System.in);
     String input;
-    Pattern pattern = Pattern.compile("[+]?(\\w+)?(\\s|[-])?([(]\\w{2,}[)])?((\\s|[-])\\w{2,})*");
-    Pattern patternNumber = Pattern.compile("[0-9]*");
+    Pattern patternPhone = Pattern.compile("[+]?(\\w+)?(\\s|[-])?([(]\\w{2,}[)])?((\\s|[-])\\w{2,})*");
+    Pattern patternNumber = Pattern.compile("[0-9]+");
     Matcher matcher;
     WriteReadFile wrFile;
     InvertedIndexes contactSearch = new InvertedIndexes();
@@ -30,7 +30,7 @@ public class UI {
     void start() {
         label:
         while (true) {
-            System.out.println("\n[menu] Enter action (add, list, search, count, exit):");
+            System.out.println("\n[menu] ENTER INPUT - add | list | search | count | exit :");
             input = scan.nextLine();
             switch (input) {
                 case "add":
@@ -61,18 +61,18 @@ public class UI {
     void searchMenu() {
         searchFor();
         while (true) {
-            System.out.println("\n[search] Enter action ([entry number], again, back):");
+            System.out.println("\n[search] ENTER INPUT - [input number] | again | back :");
             input = scan.nextLine();
             matcher = patternNumber.matcher(input);
             if (matcher.matches()) {
                 int number = Integer.parseInt(input);
-                number = contactList.size() - number;
+                number--;
                 if (number < contactList.size() && number >= 0) {
                     System.out.println(contactList.get(number).detailedPrint());
                     recordMenu(number);
                     break;
                 } else {
-                    System.out.println("Entry number " + (contactList.size() + number) + " does not exist");
+                    System.out.println("Entry number " + ++number + " does not exist");
                 }
             } else if (input.equals("back")) {
                 break;
@@ -86,7 +86,7 @@ public class UI {
 
     void recordMenu(int number) {
         while (!input.equals("menu") && !input.equals("delete")) {
-            System.out.println("\n[record] Enter action (edit, delete, menu):");
+            System.out.println("\n[record] ENTER INPUT - | edit | delete | menu :");
             input = scan.nextLine();
             matcher = patternNumber.matcher(input);
             switch (input) {
@@ -108,18 +108,18 @@ public class UI {
 
     void listMenu(){
         while(true){
-            System.out.println("\n[list] Enter action ([number], back):");
+            System.out.println("\n[list] ENTER INPUT - [number] |  back :");
             input = scan.nextLine();
             matcher = patternNumber.matcher(input);
             if (matcher.matches()) {
                 int number = Integer.parseInt(input);
-                number = contactList.size() - number;
+                number--;
                 if (number < contactList.size() && number >= 0) {
                     System.out.println(contactList.get(number).detailedPrint());
                     recordMenu(number);
                     break;
                 } else {
-                    System.out.println("Entry number " + (contactList.size() + number) + " does not exist");
+                    System.out.println("Entry number " + ++number + " does not exist");
                 }
             }else if(input.equals("back")){
                 break;
@@ -131,10 +131,10 @@ public class UI {
     }
 
     private void printList() {
-        int counter = contactList.size();
+        int counter = 1;
         for (Contact contact : contactList) {
             System.out.println(counter + ". " + contact);
-            counter--;
+            counter++;
         }
     }
 
@@ -311,7 +311,7 @@ public class UI {
     }
 
     private boolean numberValidation(String phone) {
-        matcher = pattern.matcher(phone);
+        matcher = patternPhone.matcher(phone);
         return matcher.matches();
     }
 
