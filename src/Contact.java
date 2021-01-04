@@ -33,4 +33,3 @@ public class Contact implements Serializable {
         return "error";
     }
 }
-

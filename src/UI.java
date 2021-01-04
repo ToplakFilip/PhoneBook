@@ -9,19 +9,21 @@ public class UI {
     ArrayList<Contact> contactList;
     Scanner scan = new Scanner(System.in);
     String input;
-    Pattern patternPhone = Pattern.compile("[+]?(\\w+)?(\\s|[-])?([(]\\w{2,}[)])?((\\s|[-])\\w{2,})*");
-    Pattern patternNumber = Pattern.compile("[0-9]+");
-    Matcher matcher;
     WriteReadFile wrFile;
     InvertedIndexes contactSearch = new InvertedIndexes();
     boolean modified = true;
     boolean hasFile = true;
 
+    Pattern patternPhone = Pattern.compile("[+]?(\\w+)?(\\s|[-])?([(]\\w{2,}[)])?((\\s|[-])\\w{2,})*");
+    Pattern patternNumber = Pattern.compile("[0-9]+");
+    Pattern patternDate = Pattern.compile("[0-3][0-9][.](([0][0-9])|1[0-2])[.][0-9]{4}[.]*"); //dd.mm.yyyy.
+    Matcher matcher;
+
     UI(String filename) throws IOException, ClassNotFoundException {
-        if(filename.equals("none")){
+        if (filename.equals("none")) {
             contactList = new ArrayList<>();
             hasFile = false;
-        }else{
+        } else {
             wrFile = new WriteReadFile(filename);
             contactList = wrFile.readFile();
         }
@@ -47,7 +49,7 @@ public class UI {
                     searchMenu();
                     break;
                 case "exit":
-                    if(hasFile) {
+                    if (hasFile) {
                         wrFile.writeFile(contactList);
                     }
                     break label;
@@ -106,8 +108,8 @@ public class UI {
 
     }
 
-    void listMenu(){
-        while(true){
+    void listMenu() {
+        while (true) {
             System.out.println("\n[list] ENTER INPUT - [number] |  back :");
             input = scan.nextLine();
             matcher = patternNumber.matcher(input);
@@ -121,9 +123,9 @@ public class UI {
                 } else {
                     System.out.println("Entry number " + ++number + " does not exist");
                 }
-            }else if(input.equals("back")){
+            } else if (input.equals("back")) {
                 break;
-            }else{
+            } else {
                 System.out.println("Invalid input");
             }
 
@@ -167,9 +169,7 @@ public class UI {
         String surname = scan.nextLine();
         System.out.println("Enter the birth date:");
         String birthDate = scan.nextLine();
-        if (birthDate.equals("")) {
-            System.out.println("invalid birth date!");
-        }
+        birthDate = birthDateValidation(birthDate);
         System.out.println("Enter the gender (M, F):");
         String gender = scan.nextLine();
         if (!gender.equals("M") && !gender.equals("F")) {
@@ -253,7 +253,7 @@ public class UI {
                 }
                 break;
             case "birth":
-                System.out.println("Enter birth date: ");
+                System.out.println("Enter birth date (dd.mm.yyyy.): ");
                 input = scan.nextLine();
                 if (input.equals("")) {
                     System.out.println("invalid birth date!");
@@ -313,6 +313,18 @@ public class UI {
     private boolean numberValidation(String phone) {
         matcher = patternPhone.matcher(phone);
         return matcher.matches();
+    }
+
+    private String birthDateValidation(String birthDate) {
+        matcher = patternDate.matcher(birthDate);
+        if (birthDate.equals("") || !matcher.matches()) {
+            System.out.println("invalid birth date!");
+            return "";
+        }
+        if (birthDate.charAt(birthDate.length() - 1) != '.') {
+            return birthDate + '.';
+        }
+        return birthDate;
     }
 
     private void searchFor() {

@@ -4,6 +4,6 @@
 
 [record] ENTER INPUT - | edit | delete | menu</pre>
 
-Contact list program that uses builder pattern and factory method to add contact entries.
+Contact list program that uses builder pattern and factory method to add contact objects.
 
-Includes serialization/deserialization of the list to save contacts, editing object fields, regular expression checking, timestamps of creation/last edit and a search function.
+Includes serialization/deserialization of the list to save contact entries, editing object fields, regular expression checking, timestamps of creation/last edit and a search function.
