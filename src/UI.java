@@ -6,76 +6,142 @@ import java.util.regex.Pattern;
 
 public class UI {
 
-    ArrayList<Contact> contactList = new ArrayList<>();
+    ArrayList<Contact> contactList;
     Scanner scan = new Scanner(System.in);
     String input;
     Pattern pattern = Pattern.compile("[+]?(\\w+)?(\\s|[-])?([(]\\w{2,}[)])?((\\s|[-])\\w{2,})*");
+    Pattern patternNumber = Pattern.compile("[0-9]*");
     Matcher matcher;
     WriteReadFile wrFile;
+    InvertedIndexes contactSearch = new InvertedIndexes();
+    boolean modified = true;
+    boolean hasFile = true;
 
     UI(String filename) throws IOException, ClassNotFoundException {
-        wrFile = new WriteReadFile(filename);
-        contactList = wrFile.readFile();
+        if(filename.equals("none")){
+            contactList = new ArrayList<>();
+            hasFile = false;
+        }else{
+            wrFile = new WriteReadFile(filename);
+            contactList = wrFile.readFile();
+        }
     }
 
-
     void start() {
-        System.out.println("Enter action (add, remove, edit, count, list, exit, info):");
-        input = scan.nextLine();
         label:
         while (true) {
+            System.out.println("\n[menu] Enter action (add, list, search, count, exit):");
+            input = scan.nextLine();
             switch (input) {
                 case "add":
                     factory();
-                    break;
-                case "remove":
-                    if (!contactList.isEmpty()) {
-                        remove();
-                    } else {
-                        System.out.println("No records to remove");
-                    }
-                    break;
-                case "edit":
-                    if (!contactList.isEmpty()) {
-                        edit();
-                    } else {
-                        System.out.println("No records to edit");
-                    }
                     break;
                 case "count":
                     System.out.printf("the Phone book has %s records.\n", contactList.size());
                     break;
                 case "list":
                     printList();
+                    listMenu();
                     break;
-                case "info":
-                    detailedPrint();
+                case "search":
+                    searchMenu();
                     break;
                 case "exit":
-                    wrFile.writeFile(contactList);
+                    if(hasFile) {
+                        wrFile.writeFile(contactList);
+                    }
                     break label;
                 default:
                     System.out.println("Wrong input");
                     break;
             }
-            System.out.println("\nEnter action (add, remove, edit, count, list, exit, info):");
+        }
+    }
+
+    void searchMenu() {
+        searchFor();
+        while (true) {
+            System.out.println("\n[search] Enter action ([entry number], again, back):");
             input = scan.nextLine();
+            matcher = patternNumber.matcher(input);
+            if (matcher.matches()) {
+                int number = Integer.parseInt(input);
+                number = contactList.size() - number;
+                if (number < contactList.size() && number >= 0) {
+                    System.out.println(contactList.get(number).detailedPrint());
+                    recordMenu(number);
+                    break;
+                } else {
+                    System.out.println("Entry number " + (contactList.size() + number) + " does not exist");
+                }
+            } else if (input.equals("back")) {
+                break;
+            } else if (input.equals("again")) {
+                searchFor();
+            } else {
+                System.out.println("Invalid input");
+            }
+        }
+    }
+
+    void recordMenu(int number) {
+        while (!input.equals("menu") && !input.equals("delete")) {
+            System.out.println("\n[record] Enter action (edit, delete, menu):");
+            input = scan.nextLine();
+            matcher = patternNumber.matcher(input);
+            switch (input) {
+                case "edit":
+                    edit(number);
+                    break;
+                case "delete":
+                    remove(number);
+                    break;
+                case "menu":
+                    break;
+                default:
+                    System.out.println("Invalid input");
+                    break;
+            }
+        }
+
+    }
+
+    void listMenu(){
+        while(true){
+            System.out.println("\n[list] Enter action ([number], back):");
+            input = scan.nextLine();
+            matcher = patternNumber.matcher(input);
+            if (matcher.matches()) {
+                int number = Integer.parseInt(input);
+                number = contactList.size() - number;
+                if (number < contactList.size() && number >= 0) {
+                    System.out.println(contactList.get(number).detailedPrint());
+                    recordMenu(number);
+                    break;
+                } else {
+                    System.out.println("Entry number " + (contactList.size() + number) + " does not exist");
+                }
+            }else if(input.equals("back")){
+                break;
+            }else{
+                System.out.println("Invalid input");
+            }
+
         }
     }
 
     private void printList() {
-        int counter = 1;
+        int counter = contactList.size();
         for (Contact contact : contactList) {
             System.out.println(counter + ". " + contact);
-            counter++;
+            counter--;
         }
     }
 
-    private void remove() {
-        System.out.println("Select a record: ");
-        int number = selectNumber();
+    private void remove(int number) {
         contactList.remove(number);
         System.out.println("The record removed");
+        this.modified = true;
     }
 
     private void factory() {
@@ -126,6 +192,7 @@ public class UI {
                 .setEditDate()
                 .peopleBuild());
         System.out.println("The record added.");
+        this.modified = true;
 
     }
 
@@ -148,13 +215,10 @@ public class UI {
                 .setEditDate()
                 .organizationBuild());
         System.out.println("The record added.");
+        this.modified = true;
     }
 
-    private void edit() {
-        printList();
-        System.out.println("Select a record:");
-        int number = selectNumber();
-
+    private void edit(int number) {
         if (contactList.get(number).isPerson()) {
             editPerson(number);
         } else {
@@ -170,15 +234,13 @@ public class UI {
                 System.out.println("Enter the name: ");
                 input = scan.nextLine();
                 contactList.get(number).setName(input);
-                System.out.println("The record updated!");
-                contactList.get(number).updateLastEdited();
+                editFinish(number);
                 break;
             case "surname":
                 System.out.println("Enter the surname: ");
                 input = scan.nextLine();
                 ((People) contactList.get(number)).setSurname(input);
-                System.out.println("The record updated!");
-                contactList.get(number).updateLastEdited();
+                editFinish(number);
                 break;
             case "gender":
                 System.out.println("Enter gender (M, F): ");
@@ -187,19 +249,17 @@ public class UI {
                     System.out.println("invalid gender!");
                 } else {
                     ((People) contactList.get(number)).setGender(input);
-                    System.out.println("The record updated!");
-                    contactList.get(number).updateLastEdited();
+                    editFinish(number);
                 }
                 break;
             case "birth":
                 System.out.println("Enter birth date: ");
                 input = scan.nextLine();
-                if (!input.equals("")) {
+                if (input.equals("")) {
                     System.out.println("invalid birth date!");
                 } else {
                     ((People) contactList.get(number)).setBirthDate(input);
-                    System.out.println("The record updated!");
-                    contactList.get(number).updateLastEdited();
+                    editFinish(number);
                 }
                 break;
             case "number":
@@ -219,13 +279,13 @@ public class UI {
                 System.out.println("Enter organization name: ");
                 input = scan.nextLine();
                 contactList.get(number).setName(input);
-                contactList.get(number).updateLastEdited();
+                editFinish(number);
                 break;
             case "address":
                 System.out.println("Enter organization address: ");
                 input = scan.nextLine();
                 ((Organization) contactList.get(number)).setAddress(input);
-                contactList.get(number).updateLastEdited();
+                editFinish(number);
                 break;
             case "number":
                 setContactNumber(number);
@@ -238,19 +298,16 @@ public class UI {
         input = scan.nextLine();
         if (numberValidation(input)) {
             contactList.get(number).setNumber(input);
-            System.out.println("The record updated!");
-            contactList.get(number).updateLastEdited();
+            editFinish(number);
         } else {
             System.out.println("Wrong number format!");
         }
     }
 
-    private void detailedPrint() {
-        printList();
-        System.out.println("Select a record:");
-        int number = selectNumber();
-        System.out.println(contactList.get(number).detailedPrint());
-
+    private void editFinish(int number) {
+        System.out.println("The record updated!");
+        contactList.get(number).updateLastEdited();
+        this.modified = true;
     }
 
     private boolean numberValidation(String phone) {
@@ -258,15 +315,19 @@ public class UI {
         return matcher.matches();
     }
 
-    private int selectNumber() {
-        while (true) {
-            int number = Integer.parseInt(scan.nextLine());
-            number--;
-            if (number < contactList.size() && number >= 0) {
-                return number;
-            } else {
-                System.out.println("Invalid number");
-            }
+    private void searchFor() {
+        if (contactList.isEmpty()) {
+            System.out.println("Empty contact list");
+        } else if (modified) {
+            contactSearch.invertedIndexing(contactList);
+            modified = false;
+            System.out.println("Enter search query: ");
+            this.input = scan.nextLine();
+            contactSearch.findWords(input, contactList);
+        } else {
+            System.out.println("Enter search query: ");
+            this.input = scan.nextLine();
+            contactSearch.findWords(input, contactList);
         }
     }
 }

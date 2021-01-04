@@ -25,7 +25,7 @@ public class Organization extends Contact implements Serializable {
     public String detailedPrint() {
         return "Organization name: " + super.name + "\n"
                 + "Address: " + this.address + "\n"
-                + "Number: " + this.number + "\n"
+                + "Number: " + super.number + "\n"
                 + "Time created: " + super.formattedDateTimeCreation + "\n"
                 + "Time last edit: " + super.formattedDateTime;
     }
@@ -35,9 +35,15 @@ public class Organization extends Contact implements Serializable {
         return super.name + " " + this.address;
     }
 
+    @Override
+    public String searchPrint(){
+        return super.name + "|" + this.address + "|" + super.number;
+    }
+
     //bad implementation, temporary
     @Override
     public boolean isPerson(){
         return false;
     }
+
 }

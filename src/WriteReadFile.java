@@ -9,7 +9,7 @@ public class WriteReadFile {
     }
 
     ArrayList<Contact> readFile() throws IOException, ClassNotFoundException {
-        // new FileOutputStream(file, true).close();
+        new FileOutputStream(file, true).close();
         FileInputStream fis = new FileInputStream(file);
         if(fis.available() != 0) {
             ObjectInputStream ois = new ObjectInputStream(fis);

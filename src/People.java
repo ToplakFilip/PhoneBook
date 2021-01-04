@@ -49,6 +49,15 @@ public class People extends Contact implements Serializable {
     }
 
     @Override
+    public String searchPrint(){
+        return super.name + "|"
+                + this.surname + "|"
+                + this.gender + "|"
+                + this.birthDate + "|"
+                + super.number;
+    }
+
+    @Override
     public boolean isPerson(){
         return true;
     }

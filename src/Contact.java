@@ -28,5 +28,9 @@ public class Contact implements Serializable {
     protected boolean isPerson(){
         return false;
     }
+
+    protected String searchPrint(){
+        return "error";
+    }
 }
 
